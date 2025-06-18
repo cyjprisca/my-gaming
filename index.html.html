@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真相猎人 - 虚假信息识别游戏</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            margin: 20px auto;
+            position: relative;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border-bottom: 2px solid #ff5252;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            color: #ff5252;
+            text-shadow: 0 0 10px rgba(255, 82, 82, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .game-container {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4caf50;
+        }
+        
+        .question-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            width: 100%;
+            position: relative;
+        }
+        
+        .question-text {
+            font-size: 1.4rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .question-source {
+            text-align: right;
+            font-style: italic;
+            opacity: 0.7;
+            margin-top: 15px;
+        }
+        
+        .options {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .option-btn {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 180px;
+        }
+        
+        .option-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .true-btn {
+            background: linear-gradient(to right, #4caf50, #2e7d32);
+            color: white;
+        }
+        
+        .false-btn {
+            background: linear-gradient(to right, #f44336, #c62828);
+            color: white;
+        }
+        
+        .feedback {
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 25px;
+            width: 100%;
+            text-align: center;
+            display: none;
+            background: rgba(0, 0, 0, 0.4);
+        }
+        
+        .correct {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4caf50;
+        }
+        
+        .incorrect {
+            background: rgba(244, 67, 54, 0.3);
+            border: 2px solid #f44336;
+        }
+        
+        .feedback-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .explanation {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .next-btn {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: linear-gradient(to right, #2196f3, #0d47a1);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .next-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(33, 150, 243, 0.5);
+        }
+        
+        .progress-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            height: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #4caf50, #8bc34a);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .game-over {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+        
+        .result-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #ff9800;
+        }
+        
+        .score {
+            font-size: 5rem;
+            color: #4caf50;
+            margin: 20px 0;
+            text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+        
+        .restart-btn {
+            margin-top: 30px;
+            padding: 15px 50px;
+            font-size: 1.3rem;
+            background: linear-gradient(to right, #ff9800, #f57c00);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 152, 0, 0.5);
+        }
+        
+        .tips {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            width: 100%;
+        }
+        
+        .tips-title {
+            font-size: 1.5rem;
+            color: #2196f3;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .tip-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        .tip-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+            color: #ff9800;
+        }
+        
+        .tip-text {
+            flex: 1;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .question-text {
+                font-size: 1.2rem;
+            }
+            
+            .option-btn {
+                min-width: 140px;
+                padding: 12px 20px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-search"></i> 真相猎人</h1>
+            <p class="subtitle">测试你的虚假信息识别能力！在信息爆炸的时代，学会辨别真假至关重要。</p>
+        </header>
+        
+        <div class="game-container" id="gameScreen">
+            <div class="stats">
+                <div class="stat-item">
+                    <div>当前分数</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat-item">
+                    <div>问题进度</div>
+                    <div class="stat-value" id="progress">1/10</div>
+                </div>
+                <div class="stat-item">
+                    <div>正确率</div>
+                    <div class="stat-value" id="accuracy">0%</div>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="question-text" id="questionText">
+                    加载中...
+                </div>
+                <div class="question-source" id="questionSource"></div>
+                
+                <div class="options">
+                    <button class="option-btn true-btn" id="trueBtn">
+                        <i class="fas fa-check-circle"></i> 真实信息
+                    </button>
+                    <button class="option-btn false-btn" id="falseBtn">
+                        <i class="fas fa-times-circle"></i> 虚假信息
+                    </button>
+                </div>
+            </div>
+            
+            <div class="feedback" id="feedback">
+                <div class="feedback-title" id="feedbackTitle">
+                    <i class="fas fa-check"></i> 回答正确！
+                </div>
+                <div class="explanation" id="explanation">
+                    这里会显示详细的解释信息，帮助你理解为什么这是真/假信息。
+                </div>
+            </div>
+            
+            <button class="next-btn" id="nextBtn">
+                下一题 <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        
+        <div class="game-over" id="gameOver">
+            <h2 class="result-title">游戏结束！</h2>
+            <div>你的最终得分：</div>
+            <div class="score" id="finalScore">0</div>
+            <div>正确率：<span id="finalAccuracy">0%</span></div>
+            <p id="resultComment">继续努力，你可以做得更好！</p>
+            <button class="restart-btn" id="restartBtn">
+                <i class="fas fa-redo"></i> 再玩一次
+            </button>
+            
+            <div class="tips">
+                <h3 class="tips-title"><i class="fas fa-lightbulb"></i> 识别虚假信息小贴士</h3>
+                <div class="tip-item">
+                    <div class="tip-icon"><i class="fas fa-1"></i></div>
+                    <div class="tip-text">检查来源可靠性：查看信息发布者是否权威，是否有其他可靠来源证实</div>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon"><i class="fas fa-2"></i></div>
+                    <div class="tip-text">注意情感操纵：虚假信息常使用夸张、煽动性语言引发强烈情绪反应</div>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon"><i class="fas fa-3"></i></div>
+                    <div class="tip-text">验证数据事实：对统计数据、科学结论等，查找原始研究或官方数据</div>
+                </div>
+                <div class="tip-item">
+                    <div class="tip-icon"><i class="fas fa-4"></i></div>
+                    <div class="tip-text">核查图片视频：使用反向图片搜索验证多媒体内容是否被篡改或误用</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>真相猎人 - 虚假信息识别游戏 | 提升媒体素养，共建清朗网络空间</p>
+    </footer>
+
+    <script>
+        // 游戏数据
+        const questions = [
+            {
+                text: "喝柠檬水可以改变人体的pH值，有助于预防癌症",
+                source: "健康养生公众号",
+                answer: false,
+                explanation: "这是虚假信息。人体有精密的酸碱平衡系统，食物无法改变血液pH值。美国癌症协会明确表示没有证据支持这种说法。"
+            },
+            {
+                text: "中国嫦娥五号月球探测器成功带回月球土壤样本",
+                source: "新华社报道",
+                answer: true,
+                explanation: "这是真实信息。2020年12月，嫦娥五号返回器携带约1,731克月球样品成功返回地球，这是中国首次实现地外天体采样返回。"
+            },
+            {
+                text: "5G网络传播新冠病毒",
+                source: "社交媒体帖子",
+                answer: false,
+                explanation: "这是已被多次证伪的虚假信息。世界卫生组织明确表示，病毒不能通过无线电波传播，5G技术与新冠病毒传播毫无关系。"
+            },
+            {
+                text: "长时间使用手机会增加患脑瘤的风险",
+                source: "健康科普网站",
+                answer: false,
+                explanation: "这是缺乏科学依据的说法。美国国家癌症研究所指出，目前没有确凿证据表明手机辐射会增加癌症风险，相关研究结果不一致。"
+            },
+            {
+                text: "北斗卫星导航系统已覆盖全球，定位精度达到厘米级",
+                source: "央视新闻",
+                answer: true,
+                explanation: "这是真实信息。2020年北斗三号全球卫星导航系统正式开通，在全球范围内提供定位、导航和授时服务，部分服务精度可达厘米级。"
+            },
+            {
+                text: "吃大蒜可以预防新冠病毒感染",
+                source: "健康养生群消息",
+                answer: false,
+                explanation: "这是虚假信息。世界卫生组织表示，大蒜虽有抗菌特性，但没有证据表明它能预防新冠病毒感染。预防感染最有效方法是接种疫苗、戴口罩和保持社交距离。"
+            },
+            {
+                text: "中国天眼（FAST）已发现超过500颗脉冲星",
+                source: "中国科学院官网",
+                answer: true,
+                explanation: "这是真实信息。截至2023年，位于贵州的500米口径球面射电望远镜（FAST）已发现超过740颗脉冲星，是同一时期国际上其他望远镜发现脉冲星总数的3倍以上。"
+            },
+            {
+                text: "微波炉加热的食物会释放有害辐射，导致癌症",
+                source: "健康警示文章",
+                answer: false,
+                explanation: "这是虚假信息。微波炉使用非电离辐射加热食物，不会使食物产生放射性，也不会让食物致癌。美国食品药品监督管理局确认微波炉在正确使用下是安全的。"
+            },
+            {
+                text: "中国高铁运营里程超过4万公里，居世界第一",
+                source: "人民日报",
+                answer: true,
+                explanation: "这是真实信息。截至2023年底，中国高铁运营里程达到4.5万公里，占全球高铁总里程的三分之二以上，稳居世界第一。"
+            },
+            {
+                text: "新冠肺炎疫苗会改变人类DNA",
+                source: "社交媒体视频",
+                answer: false,
+                explanation: "这是虚假信息。mRNA疫苗不会进入细胞核，也不会改变人体DNA。疫苗中的mRNA在指导细胞制造蛋白质后很快被分解，不会与DNA相互作用。"
+            }
+        ];
+
+        // 游戏状态
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = 0;
+        
+        // DOM元素
+        const gameScreen = document.getElementById('gameScreen');
+        const gameOverScreen = document.getElementById('gameOver');
+        const questionText = document.getElementById('questionText');
+        const questionSource = document.getElementById('questionSource');
+        const trueBtn = document.getElementById('trueBtn');
+        const falseBtn = document.getElementById('falseBtn');
+        const feedback = document.getElementById('feedback');
+        const feedbackTitle = document.getElementById('feedbackTitle');
+        const explanation = document.getElementById('explanation');
+        const nextBtn = document.getElementById('nextBtn');
+        const scoreElement = document.getElementById('score');
+        const progressElement = document.getElementById('progress');
+        const accuracyElement = document.getElementById('accuracy');
+        const progressBar = document.getElementById('progressBar');
+        const finalScore = document.getElementById('finalScore');
+        const finalAccuracy = document.getElementById('finalAccuracy');
+        const resultComment = document.getElementById('resultComment');
+        const restartBtn = document.getElementById('restartBtn');
+        
+        // 初始化游戏
+        function initGame() {
+            currentQuestion = 0;
+            score = 0;
+            answered = 0;
+            updateStats();
+            loadQuestion();
+            gameScreen.style.display = 'flex';
+            gameOverScreen.style.display = 'none';
+        }
+        
+        // 加载问题
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            questionText.textContent = q.text;
+            questionSource.textContent = `来源：${q.source}`;
+            
+            // 重置状态
+            feedback.style.display = 'none';
+            nextBtn.style.display = 'none';
+            trueBtn.disabled = false;
+            falseBtn.disabled = false;
+            
+            // 更新进度
+            updateStats();
+        }
+        
+        // 更新统计数据
+        function updateStats() {
+            scoreElement.textContent = score;
+            progressElement.textContent = `${currentQuestion + 1}/${questions.length}`;
+            const accuracy = answered > 0 ? Math.round((score / answered) * 100) : 0;
+            accuracyElement.textContent = `${accuracy}%`;
+            
+            // 更新进度条
+            const progressPercent = (currentQuestion / questions.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+        }
+        
+        // 检查答案
+        function checkAnswer(userAnswer) {
+            const q = questions[currentQuestion];
+            answered++;
+            
+            // 禁用按钮
+            trueBtn.disabled = true;
+            falseBtn.disabled = true;
+            
+            // 显示反馈
+            feedback.style.display = 'block';
+            
+            if (userAnswer === q.answer) {
+                // 回答正确
+                score++;
+                feedback.className = 'feedback correct';
+                feedbackTitle.innerHTML = '<i class="fas fa-check-circle"></i> 回答正确！';
+            } else {
+                // 回答错误
+                feedback.className = 'feedback incorrect';
+                feedbackTitle.innerHTML = '<i class="fas fa-times-circle"></i> 回答错误！';
+            }
+            
+            explanation.textContent = q.explanation;
+            nextBtn.style.display = 'block';
+            
+            updateStats();
+        }
+        
+        // 显示结果
+        function showResults() {
+            const accuracy = Math.round((score / questions.length) * 100);
+            
+            finalScore.textContent = score;
+            finalAccuracy.textContent = `${accuracy}%`;
+            
+            // 根据得分给出评价
+            if (accuracy >= 90) {
+                resultComment.textContent = "太棒了！你简直是虚假信息识别专家！";
+            } else if (accuracy >= 70) {
+                resultComment.textContent = "做得不错！你对虚假信息有很强的辨别能力！";
+            } else if (accuracy >= 50) {
+                resultComment.textContent = "合格！继续学习可以提升你的信息辨别能力。";
+            } else {
+                resultComment.textContent = "需要努力！提高媒体素养对现代生活很重要。";
+            }
+            
+            gameScreen.style.display = 'none';
+            gameOverScreen.style.display = 'block';
+        }
+        
+        // 事件监听器
+        trueBtn.addEventListener('click', () => checkAnswer(true));
+        falseBtn.addEventListener('click', () => checkAnswer(false));
+        
+        nextBtn.addEventListener('click', () => {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+        
+        restartBtn.addEventListener('click', initGame);
+        
+        // 开始游戏
+        initGame();
+    </script>
+</body>
+</html>
